@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 3.13)
 project(renderer)
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-set(SOURCE_FILES main.cpp)
 
-add_executable(simple_example ${SOURCE_FILES})
+
+add_subdirectory(contrib)
+add_subdirectory(src)
