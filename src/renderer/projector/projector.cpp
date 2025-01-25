@@ -9,7 +9,6 @@ Projector::Projector(const World& aWorld, const Camera& aCamera) {
 void Projector::projectObject(const Object& aObject, sf::RenderWindow& aWindow) {
     std::vector<Vec3> transformedVertexes = transformVertexes(aObject);
     std::vector<Vec2> screenVertexes = projectVertexes(transformedVertexes);
-    long double z_plane = 200.0;
     for (const auto& vertex : screenVertexes) {
         auto circle = sf::CircleShape(6);
         circle.setPosition({vertex[0] - 6, vertex[1] - 6});
@@ -58,11 +57,10 @@ std::vector<Vec3> Projector::transformVertexes(const Object& aObject) {
 
 std::vector<Vec2> Projector::projectVertexes(const std::vector<Vec3>& aVertexes) {
     std::vector<Vec2> result;
-    long double z_plane = 200.0;
     for (const auto& vertex : aVertexes) {
         result.push_back({
-            camera_.getWidth() / 2 + vertex[0] * z_plane / vertex[2],
-            camera_.getHeight() / 2 - vertex[1] * z_plane / vertex[2]
+            camera_.getWidth() / 2 + vertex[0] * camera_.getZPlane() / vertex[2],
+            camera_.getHeight() / 2 - vertex[1] * camera_.getZPlane() / vertex[2]
         });
     }
     return result;
