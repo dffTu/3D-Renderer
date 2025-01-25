@@ -1,3 +1,5 @@
+#pragma once
+
 #include <renderer/utils/linalg.h>
 
 class Camera {
