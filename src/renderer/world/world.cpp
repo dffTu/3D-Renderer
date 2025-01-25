@@ -12,3 +12,7 @@ void World::addObject(const Object& aObject) {
         0.0, 0.0, 1.0;
     worldObjects_.push_back(worldObject);
 }
+
+std::vector<World::WorldObject> World::getObjects() const {
+    return worldObjects_;
+}
