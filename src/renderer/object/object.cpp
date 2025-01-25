@@ -80,6 +80,14 @@ std::vector<int> Object::getVertexIndices() const {
     return vertexIndices_;
 }
 
+Mat3 Object::getRotationMatrix() const {
+    return rotateMatrix_;
+}
+
+Vec3 Object::getWorldOffset() const {
+    return worldOffset_;
+}
+
 void Object::move(const Vec3& aOffset) {
     worldOffset_ += aOffset;
 }
