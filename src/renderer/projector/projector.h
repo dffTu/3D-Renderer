@@ -18,6 +18,7 @@ public:
 
 private:
     std::vector<Vec3> transformVertexes(const Object& aObject);
+    std::vector<Vec2> projectVertexes(const std::vector<Vec3>& aVertexes);
 
     World world_;
     Camera camera_;
