@@ -1,33 +1,44 @@
 #include "object.h"
+#include <renderer/utils/linalg.h>
 
 Object::Object() {
     objectType_ = ObjectType::VERTEXES;
     vertexes_ = {};
     vertexIndices_ = {};
+    rotateMatrix_ = getDefaultMat3();
+    worldOffset_ = Vec3(0, 0, 0);
 }
 
 Object::Object(ObjectType aObjectType, const std::vector<Vertex>& aVertexes, const std::vector<int>& aVertexIndices) {
     objectType_ = aObjectType;
     vertexes_ = aVertexes;
     vertexIndices_ = aVertexIndices;
+    rotateMatrix_ = getDefaultMat3();
+    worldOffset_ = Vec3(0, 0, 0);
 }
 
 Object::Object(const Object& aObject) {
     objectType_ = aObject.objectType_;
     vertexes_ = aObject.vertexes_;
     vertexIndices_ = aObject.vertexIndices_;
+    rotateMatrix_ = aObject.rotateMatrix_;
+    worldOffset_ = aObject.worldOffset_;
 }
 
 Object::Object(Object&& aObject) {
     objectType_ = aObject.objectType_;
     vertexes_.swap(aObject.vertexes_);
     vertexIndices_.swap(aObject.vertexIndices_);
+    rotateMatrix_.swap(aObject.rotateMatrix_);
+    worldOffset_.swap(aObject.worldOffset_);
 }
 
 Object& Object::operator=(const Object& aObject) {
     objectType_ = aObject.objectType_;
     vertexes_ = aObject.vertexes_;
     vertexIndices_ = aObject.vertexIndices_;
+    rotateMatrix_ = aObject.rotateMatrix_;
+    worldOffset_ = aObject.worldOffset_;
     return *this;
 }
 
@@ -35,6 +46,8 @@ Object& Object::operator=(Object&& aObject) {
     objectType_ = aObject.objectType_;
     vertexes_.swap(aObject.vertexes_);
     vertexIndices_.swap(aObject.vertexIndices_);
+    rotateMatrix_.swap(aObject.rotateMatrix_);
+    worldOffset_.swap(aObject.worldOffset_);
     return *this;
 }
 
@@ -65,4 +78,20 @@ std::vector<Vertex> Object::getVertexes() const {
 
 std::vector<int> Object::getVertexIndices() const {
     return vertexIndices_;
+}
+
+void Object::move(const Vec3& aOffset) {
+    worldOffset_ += aOffset;
+}
+
+void Object::rotateX(double aRadians) {
+    rotateMatrix_ = getXRotationMatrix(aRadians) * rotateMatrix_;
+}
+
+void Object::rotateY(double aRadians) {
+    rotateMatrix_ = getYRotationMatrix(aRadians) * rotateMatrix_;
+}
+
+void Object::rotateX(double aRadians) {
+    rotateMatrix_ = getZRotationMatrix(aRadians) * rotateMatrix_;
 }

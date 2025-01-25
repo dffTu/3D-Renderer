@@ -26,8 +26,15 @@ public:
     std::vector<Vertex> getVertexes() const;
     std::vector<int> getVertexIndices() const;
 
+    void move(const Vec3& aOffset);
+    void rotateX(double aRadians);
+    void rotateY(double aRadians);
+    void rotateX(double aRadians);
+
 private:
     ObjectType objectType_;
     std::vector<Vertex> vertexes_;
     std::vector<int> vertexIndices_;
+    Mat3 rotateMatrix_;
+    Vec3 worldOffset_;
 };
