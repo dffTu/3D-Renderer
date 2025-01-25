@@ -31,7 +31,7 @@ public:
     void move(const Vec3& aOffset);
     void rotateX(double aRadians);
     void rotateY(double aRadians);
-    void rotateX(double aRadians);
+    void rotateZ(double aRadians);
 
 private:
     ObjectType objectType_;

@@ -100,6 +100,6 @@ void Object::rotateY(double aRadians) {
     rotateMatrix_ = getYRotationMatrix(aRadians) * rotateMatrix_;
 }
 
-void Object::rotateX(double aRadians) {
+void Object::rotateZ(double aRadians) {
     rotateMatrix_ = getZRotationMatrix(aRadians) * rotateMatrix_;
 }
