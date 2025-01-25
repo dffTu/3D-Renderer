@@ -58,3 +58,11 @@ Object& Object::addVertex(const Vertex& aVertex, int vertexIndice) {
     vertexIndices_.push_back(vertexIndice);
     return *this;
 }
+
+std::vector<Vertex> Object::getVertexes() const {
+    return vertexes_;
+}
+
+std::vector<int> Object::getVertexIndices() const {
+    return vertexIndices_;
+}

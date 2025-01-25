@@ -12,6 +12,12 @@ Vertex::Vertex(long double aX, long double aY, long double aZ) {
     z_ = aZ;
 }
 
+Vertex::Vertex(const Vec3& aVec3) {
+    x_ = aVec3[0];
+    y_ = aVec3[1];
+    z_ = aVec3[2];
+}
+
 Vertex::Vertex(const Vertex& aVertex) {
     x_ = aVertex.getX();
     y_ = aVertex.getY();
@@ -36,6 +42,17 @@ Vertex& Vertex::operator=(Vertex&& aVertex) {
     y_ = aVertex.getY();
     z_ = aVertex.getZ();
     return *this;
+}
+
+Vertex& Vertex::operator=(const Vec3& aVec3) {
+    x_ = aVec3[0];
+    y_ = aVec3[1];
+    z_ = aVec3[2];
+    return *this;
+}
+
+Vertex::operator Vec3() const {
+    return Vec3(x_, y_, z_);
 }
 
 long double Vertex::getX() const {

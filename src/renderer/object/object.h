@@ -23,6 +23,9 @@ public:
 
     Object& addVertex(const Vertex& aVertex, int vertexIndice);
 
+    std::vector<Vertex> getVertexes() const;
+    std::vector<int> getVertexIndices() const;
+
 private:
     ObjectType objectType_;
     std::vector<Vertex> vertexes_;
