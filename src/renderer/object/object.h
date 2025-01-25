@@ -25,6 +25,7 @@ public:
 
     Object& addVertex(const Vertex& aVertex, int vertexIndice);
 
+    ObjectType getObjectType() const;
     std::vector<Vertex> getVertexes() const;
     std::vector<int> getVertexIndices() const;
     Mat4 getTransformMatrix() const;

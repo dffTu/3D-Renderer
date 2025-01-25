@@ -66,6 +66,10 @@ Object& Object::addVertex(const Vertex& aVertex, int vertexIndice) {
     return *this;
 }
 
+ObjectType Object::getObjectType() const {
+    return objectType_;
+}
+
 std::vector<Vertex> Object::getVertexes() const {
     return vertexes_;
 }
