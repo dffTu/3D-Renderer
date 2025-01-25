@@ -25,8 +25,7 @@ public:
 
     std::vector<Vertex> getVertexes() const;
     std::vector<int> getVertexIndices() const;
-    Mat3 getRotationMatrix() const;
-    Vec3 getWorldOffset() const;
+    Mat4 getTransformMatrix() const;
 
     void move(const Vec3& aOffset);
     void rotateX(double aRadians);
@@ -37,6 +36,5 @@ private:
     ObjectType objectType_;
     std::vector<Vertex> vertexes_;
     std::vector<int> vertexIndices_;
-    Mat3 rotateMatrix_;
-    Vec3 worldOffset_;
+    Mat4 transformMatrix_;
 };

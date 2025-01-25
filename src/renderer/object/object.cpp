@@ -5,40 +5,35 @@ Object::Object() {
     objectType_ = ObjectType::VERTEXES;
     vertexes_ = {};
     vertexIndices_ = {};
-    rotateMatrix_ = getDefaultMat3();
-    worldOffset_ = Vec3(0, 0, 0);
+    transformMatrix_ = getDefaultMat4();
 }
 
 Object::Object(ObjectType aObjectType, const std::vector<Vertex>& aVertexes, const std::vector<int>& aVertexIndices) {
     objectType_ = aObjectType;
     vertexes_ = aVertexes;
     vertexIndices_ = aVertexIndices;
-    rotateMatrix_ = getDefaultMat3();
-    worldOffset_ = Vec3(0, 0, 0);
+    transformMatrix_ = getDefaultMat4();
 }
 
 Object::Object(const Object& aObject) {
     objectType_ = aObject.objectType_;
     vertexes_ = aObject.vertexes_;
     vertexIndices_ = aObject.vertexIndices_;
-    rotateMatrix_ = aObject.rotateMatrix_;
-    worldOffset_ = aObject.worldOffset_;
+    transformMatrix_ = aObject.transformMatrix_;
 }
 
 Object::Object(Object&& aObject) {
     objectType_ = aObject.objectType_;
     vertexes_.swap(aObject.vertexes_);
     vertexIndices_.swap(aObject.vertexIndices_);
-    rotateMatrix_.swap(aObject.rotateMatrix_);
-    worldOffset_.swap(aObject.worldOffset_);
+    transformMatrix_.swap(aObject.transformMatrix_);
 }
 
 Object& Object::operator=(const Object& aObject) {
     objectType_ = aObject.objectType_;
     vertexes_ = aObject.vertexes_;
     vertexIndices_ = aObject.vertexIndices_;
-    rotateMatrix_ = aObject.rotateMatrix_;
-    worldOffset_ = aObject.worldOffset_;
+    transformMatrix_ = aObject.transformMatrix_;
     return *this;
 }
 
@@ -46,8 +41,7 @@ Object& Object::operator=(Object&& aObject) {
     objectType_ = aObject.objectType_;
     vertexes_.swap(aObject.vertexes_);
     vertexIndices_.swap(aObject.vertexIndices_);
-    rotateMatrix_.swap(aObject.rotateMatrix_);
-    worldOffset_.swap(aObject.worldOffset_);
+    transformMatrix_.swap(aObject.transformMatrix_);
     return *this;
 }
 
@@ -80,26 +74,22 @@ std::vector<int> Object::getVertexIndices() const {
     return vertexIndices_;
 }
 
-Mat3 Object::getRotationMatrix() const {
-    return rotateMatrix_;
-}
-
-Vec3 Object::getWorldOffset() const {
-    return worldOffset_;
+Mat4 Object::getTransformMatrix() const {
+    return transformMatrix_;
 }
 
 void Object::move(const Vec3& aOffset) {
-    worldOffset_ += aOffset;
+    transformMatrix_ = getMoveMatrix(aOffset) * transformMatrix_;
 }
 
 void Object::rotateX(double aRadians) {
-    rotateMatrix_ = getXRotationMatrix(aRadians) * rotateMatrix_;
+    transformMatrix_ = getXRotationMatrix(aRadians) * transformMatrix_;
 }
 
 void Object::rotateY(double aRadians) {
-    rotateMatrix_ = getYRotationMatrix(aRadians) * rotateMatrix_;
+    transformMatrix_ = getYRotationMatrix(aRadians) * transformMatrix_;
 }
 
 void Object::rotateZ(double aRadians) {
-    rotateMatrix_ = getZRotationMatrix(aRadians) * rotateMatrix_;
+    transformMatrix_ = getZRotationMatrix(aRadians) * transformMatrix_;
 }
