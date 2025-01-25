@@ -5,7 +5,8 @@
 
 enum ObjectType {
     VERTEXES,
-    LINE,
+    LINES,
+    LINE_STRIP,
     POLYGONS
 };
 
