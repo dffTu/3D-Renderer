@@ -1,6 +1,10 @@
 #pragma once
 
+#define _USE_MATH_DEFINES
+
 #include <Eigen/Core>
+#include <Eigen/Geometry>
+#include <math.h>
 
 using Vec2 = Eigen::Vector2f;
 using Vec3 = Eigen::Vector3f;

@@ -8,7 +8,6 @@
 class Projector {
 public:
     Projector() = default;
-    Projector(const World& aWorld, const Camera& aCamera);
 
     void projectObject(const Object& aObject, sf::RenderWindow& aWindow);
     void projectObjects(sf::RenderWindow& aWindow);

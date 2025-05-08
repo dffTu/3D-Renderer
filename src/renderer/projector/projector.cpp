@@ -1,11 +1,6 @@
 #include "projector.h"
 #include <renderer/object/object.h>
 
-Projector::Projector(const World& aWorld, const Camera& aCamera) {
-    world_ = aWorld;
-    camera_ = aCamera;
-}
-
 void Projector::projectObject(const Object& aObject, sf::RenderWindow& aWindow) {
     std::vector<Vec3> transformedVertexes = transformVertexes(aObject);
     std::vector<Vec2> screenVertexes = projectVertexes(transformedVertexes);
@@ -48,8 +43,11 @@ Camera& Projector::getCamera() {
 std::vector<Vec3> Projector::transformVertexes(const Object& aObject) {
     std::vector<Vec3> result;
     for (const Vertex& vertex: aObject.getVertexes()) {
-        Vec4 transformed = aObject.getTransformMatrix() * Vec4(vertex.getX(), vertex.getY(), vertex.getZ(), 1);
-        Vec3 tmp = Vec3(transformed[0], transformed[1], transformed[2]) - camera_.getPosition();
+        Vec4 transformed =
+            camera_.getTransformMatrix()
+            * aObject.getTransformMatrix()
+            * Vec4(vertex.getX(), vertex.getY(), vertex.getZ(), 1);
+        Vec3 tmp = Vec3(transformed[0], transformed[1], transformed[2]);
         result.push_back(tmp);
     }
     return result;
@@ -58,10 +56,19 @@ std::vector<Vec3> Projector::transformVertexes(const Object& aObject) {
 std::vector<Vec2> Projector::projectVertexes(const std::vector<Vec3>& aVertexes) {
     std::vector<Vec2> result;
     for (const auto& vertex : aVertexes) {
-        result.push_back({
-            camera_.getWidth() / 2 + vertex[0] * camera_.getZPlane() / vertex[2],
-            camera_.getHeight() / 2 - vertex[1] * camera_.getZPlane() / vertex[2]
-        });
+        double z = vertex[2];
+        if (z <= 0) z = 0.0001;
+    
+        double fov = 90.0;
+        double scale = 1.0 / tan(fov * M_PI / 360.0);
+    
+        double x_proj = vertex[0] * scale / z;
+        double y_proj = -vertex[1] * scale / z;
+    
+        double screen_x = (x_proj + 1.0) * camera_.getWidth() / 2;
+        double screen_y = (y_proj + 1.0) * camera_.getHeight() / 2;
+    
+        result.push_back({screen_x, screen_y});
     }
     return result;
 }
