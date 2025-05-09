@@ -8,7 +8,7 @@ Object::Object() {
     transformMatrix_ = getDefaultMat4();
 }
 
-Object::Object(ObjectType aObjectType, const std::vector<Vertex>& aVertexes, const std::vector<int>& aVertexIndices) {
+Object::Object(ObjectType aObjectType, const std::vector<Vec3>& aVertexes, const std::vector<int>& aVertexIndices) {
     objectType_ = aObjectType;
     vertexes_ = aVertexes;
     vertexIndices_ = aVertexIndices;
@@ -50,7 +50,7 @@ Object& Object::setObjectType(ObjectType aObjectType) {
     return *this;
 }
 
-Object& Object::setVertexes(const std::vector<Vertex>& aVertexes) {
+Object& Object::setVertexes(const std::vector<Vec3>& aVertexes) {
     vertexes_ = aVertexes;
     return *this;
 }
@@ -60,7 +60,7 @@ Object& Object::setVertexIndices(const std::vector<int>& aVertexIndices) {
     return *this;
 }
 
-Object& Object::addVertex(const Vertex& aVertex, int vertexIndice) {
+Object& Object::addVertex(const Vec3& aVertex, int vertexIndice) {
     vertexes_.push_back(aVertex);
     vertexIndices_.push_back(vertexIndice);
     return *this;
@@ -70,7 +70,7 @@ ObjectType Object::getObjectType() const {
     return objectType_;
 }
 
-std::vector<Vertex> Object::getVertexes() const {
+std::vector<Vec3> Object::getVertexes() const {
     return vertexes_;
 }
 

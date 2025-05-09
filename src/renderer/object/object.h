@@ -1,6 +1,6 @@
 #pragma once
 
-#include "vertex.h"
+#include <renderer/utils/linalg.h>
 #include <vector>
 
 enum ObjectType {
@@ -13,7 +13,7 @@ enum ObjectType {
 class Object {
 public:
     Object();
-    Object(ObjectType aObjectType, const std::vector<Vertex>& aVertexes, const std::vector<int>& aVertexIndices);
+    Object(ObjectType aObjectType, const std::vector<Vec3>& aVertexes, const std::vector<int>& aVertexIndices);
     Object(const Object& aObject);
     Object(Object&& aObject);
 
@@ -21,13 +21,13 @@ public:
     Object& operator=(Object&& aObject);
 
     Object& setObjectType(ObjectType aObjectType);
-    Object& setVertexes(const std::vector<Vertex>& aVertexes);
+    Object& setVertexes(const std::vector<Vec3>& aVertexes);
     Object& setVertexIndices(const std::vector<int>& aVertexIndices);
 
-    Object& addVertex(const Vertex& aVertex, int vertexIndice);
+    Object& addVertex(const Vec3& aVertex, int vertexIndice);
 
     ObjectType getObjectType() const;
-    std::vector<Vertex> getVertexes() const;
+    std::vector<Vec3> getVertexes() const;
     std::vector<int> getVertexIndices() const;
     Mat4 getTransformMatrix() const;
 
@@ -38,7 +38,7 @@ public:
 
 private:
     ObjectType objectType_;
-    std::vector<Vertex> vertexes_;
+    std::vector<Vec3> vertexes_;
     std::vector<int> vertexIndices_;
     Mat4 transformMatrix_;
 };
