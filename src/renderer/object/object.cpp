@@ -6,6 +6,7 @@ Object::Object() {
     vertexes_ = {};
     vertexIndices_ = {};
     transformMatrix_ = getDefaultMat4();
+    color_ = sf::Color::White;
 }
 
 Object::Object(ObjectType aObjectType, const std::vector<Vec3>& aVertexes, const std::vector<int>& aVertexIndices) {
@@ -13,6 +14,7 @@ Object::Object(ObjectType aObjectType, const std::vector<Vec3>& aVertexes, const
     vertexes_ = aVertexes;
     vertexIndices_ = aVertexIndices;
     transformMatrix_ = getDefaultMat4();
+    color_ = sf::Color::White;
 }
 
 Object::Object(const Object& aObject) {
@@ -20,6 +22,7 @@ Object::Object(const Object& aObject) {
     vertexes_ = aObject.vertexes_;
     vertexIndices_ = aObject.vertexIndices_;
     transformMatrix_ = aObject.transformMatrix_;
+    color_ = aObject.color_;
 }
 
 Object::Object(Object&& aObject) {
@@ -27,6 +30,7 @@ Object::Object(Object&& aObject) {
     vertexes_.swap(aObject.vertexes_);
     vertexIndices_.swap(aObject.vertexIndices_);
     transformMatrix_.swap(aObject.transformMatrix_);
+    color_ = aObject.color_;
 }
 
 Object& Object::operator=(const Object& aObject) {
@@ -34,6 +38,7 @@ Object& Object::operator=(const Object& aObject) {
     vertexes_ = aObject.vertexes_;
     vertexIndices_ = aObject.vertexIndices_;
     transformMatrix_ = aObject.transformMatrix_;
+    color_ = aObject.color_;
     return *this;
 }
 
@@ -42,6 +47,7 @@ Object& Object::operator=(Object&& aObject) {
     vertexes_.swap(aObject.vertexes_);
     vertexIndices_.swap(aObject.vertexIndices_);
     transformMatrix_.swap(aObject.transformMatrix_);
+    color_ = aObject.color_;
     return *this;
 }
 
@@ -57,6 +63,11 @@ Object& Object::setVertexes(const std::vector<Vec3>& aVertexes) {
 
 Object& Object::setVertexIndices(const std::vector<int>& aVertexIndices) {
     vertexIndices_ = aVertexIndices;
+    return *this;
+}
+
+Object& Object::setColor(const sf::Color& aColor) {
+    color_ = aColor;
     return *this;
 }
 
@@ -76,6 +87,10 @@ std::vector<Vec3> Object::getVertexes() const {
 
 std::vector<int> Object::getVertexIndices() const {
     return vertexIndices_;
+}
+
+sf::Color Object::getColor() const {
+    return color_;
 }
 
 Mat4 Object::getTransformMatrix() const {

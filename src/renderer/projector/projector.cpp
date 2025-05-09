@@ -15,67 +15,109 @@ void Projector::projectObject(const Object& aObject, sf::RenderWindow& aWindow) 
     }
     if (aObject.getObjectType() == ObjectType::LINES)
     {
-        std::vector<sf::Vertex> lineVertexes;
-
-        for (size_t i = 1; i < vertexIndices.size(); i += 2)
-        {
-            std::optional<std::tuple<Vec3, Vec3>> clippedLine = clipLine(transformedVertexes[vertexIndices[i - 1]], transformedVertexes[vertexIndices[i]]);
-            if (clippedLine.has_value())
-            {
-                Vec2 p1 = projectVertex(std::get<0>(clippedLine.value()));
-                Vec2 p2 = projectVertex(std::get<1>(clippedLine.value()));
-
-                lineVertexes.push_back(sf::Vertex{{p1[0], p1[1]}});
-                lineVertexes.push_back(sf::Vertex{{p2[0], p2[1]}});
-            }
-        }
-
-        aWindow.draw(lineVertexes.data(), lineVertexes.size(), sf::PrimitiveType::Lines);
+        projectLines(aObject, transformedVertexes, aWindow);
     }
     else if (aObject.getObjectType() == ObjectType::LINE_STRIP)
     {
-        std::vector<sf::Vertex> lineVertexes;
-
-        for (size_t i = 1; i < vertexIndices.size(); ++i)
-        {
-            std::optional<std::tuple<Vec3, Vec3>> clippedLine = clipLine(transformedVertexes[vertexIndices[i - 1]], transformedVertexes[vertexIndices[i]]);
-            if (clippedLine.has_value())
-            {
-                Vec2 p1 = projectVertex(std::get<0>(clippedLine.value()));
-                Vec2 p2 = projectVertex(std::get<1>(clippedLine.value()));
-
-                lineVertexes.push_back(sf::Vertex{{p1[0], p1[1]}});
-                lineVertexes.push_back(sf::Vertex{{p2[0], p2[1]}});
-            }
-        }
-
-        aWindow.draw(lineVertexes.data(), lineVertexes.size(), sf::PrimitiveType::Lines);
+        projectLines(aObject, transformedVertexes, aWindow);
     }
     else if (aObject.getObjectType() == ObjectType::POLYGONS) {
-        for (int i = 2; i < vertexIndices.size(); i += 3)
+        projectPolygons(aObject, transformedVertexes, aWindow);
+    }
+    else if (aObject.getObjectType() == ObjectType::POLYGONS_WITH_OUTLINE) {
+        projectPolygons(aObject, transformedVertexes, aWindow);
+        projectPolygonsOutline(aObject, transformedVertexes, aWindow);
+    }
+}
+
+void Projector::projectLines(const Object& aObject, const std::vector<Vec3>& aTransformedVertexes, sf::RenderWindow& aWindow) {
+    std::vector<sf::Vertex> lineVertexes;
+    std::vector<int> vertexIndices = aObject.getVertexIndices();
+
+    int delta;
+
+    if (aObject.getObjectType() == ObjectType::LINES) delta = 2;
+    else if (aObject.getObjectType() == ObjectType::LINE_STRIP) delta = 1;
+    else assert(false && "Unknown ObjectType for projecting lines!");
+
+    for (size_t i = 1; i < vertexIndices.size(); i += delta)
+    {
+        std::optional<std::tuple<Vec3, Vec3>> clippedLine =
+            clipLine(aTransformedVertexes[vertexIndices[i - 1]], aTransformedVertexes[vertexIndices[i]]);
+
+        if (clippedLine.has_value())
         {
-            std::vector<std::tuple<Vec3, Vec3, Vec3>> polygonsClipped =
-                clipPolygon(
-                    transformedVertexes[vertexIndices[i - 2]],
-                    transformedVertexes[vertexIndices[i - 1]],
-                    transformedVertexes[vertexIndices[i]]);
-            
-            for (const std::tuple<Vec3, Vec3, Vec3>& polygon : polygonsClipped)
-            {
-                Vec2 p1 = projectVertex(std::get<0>(polygon));
-                Vec2 p2 = projectVertex(std::get<1>(polygon));
-                Vec2 p3 = projectVertex(std::get<2>(polygon));
+            Vec2 p1 = projectVertex(std::get<0>(clippedLine.value()));
+            Vec2 p2 = projectVertex(std::get<1>(clippedLine.value()));
 
-                sf::ConvexShape convex;
-                convex.setPointCount(3);
-                convex.setPoint(0, {p1[0], p1[1]});
-                convex.setPoint(1, {p2[0], p2[1]});
-                convex.setPoint(2, {p3[0], p3[1]});
-
-                aWindow.draw(convex);
-            }
+            lineVertexes.push_back(sf::Vertex{{p1[0], p1[1]}});
+            lineVertexes.push_back(sf::Vertex{{p2[0], p2[1]}});
         }
     }
+
+    for (auto& vertex : lineVertexes)
+    {
+        vertex.color = aObject.getColor();
+    }
+
+    aWindow.draw(lineVertexes.data(), lineVertexes.size(), sf::PrimitiveType::Lines);
+}
+
+void Projector::projectPolygons(const Object& aObject, const std::vector<Vec3>& aTransformedVertexes, sf::RenderWindow& aWindow) {
+    std::vector<sf::Vertex> lineVertexes;
+    std::vector<int> vertexIndices = aObject.getVertexIndices();
+
+    for (int i = 2; i < vertexIndices.size(); i += 3)
+    {
+        std::vector<std::tuple<Vec3, Vec3, Vec3>> polygonsClipped =
+            clipPolygon(
+                aTransformedVertexes[vertexIndices[i - 2]],
+                aTransformedVertexes[vertexIndices[i - 1]],
+                aTransformedVertexes[vertexIndices[i]]);
+        
+        for (const std::tuple<Vec3, Vec3, Vec3>& polygon : polygonsClipped)
+        {
+            Vec2 p1 = projectVertex(std::get<0>(polygon));
+            Vec2 p2 = projectVertex(std::get<1>(polygon));
+            Vec2 p3 = projectVertex(std::get<2>(polygon));
+
+            sf::ConvexShape convex;
+            convex.setPointCount(3);
+            convex.setPoint(0, {p1[0], p1[1]});
+            convex.setPoint(1, {p2[0], p2[1]});
+            convex.setPoint(2, {p3[0], p3[1]});
+            convex.setFillColor(aObject.getColor());
+
+            aWindow.draw(convex);
+        }
+    }
+
+    for (auto& vertex : lineVertexes)
+    {
+        vertex.color = sf::Color::Black;
+    }
+
+    aWindow.draw(lineVertexes.data(), lineVertexes.size(), sf::PrimitiveType::Lines);
+}
+
+void Projector::projectPolygonsOutline(const Object& aObject, const std::vector<Vec3>& aTransformedVertexes, sf::RenderWindow& aWindow) {
+    std::vector<int> newIndices;
+    std::vector<int> vertexIndices = aObject.getVertexIndices();
+
+    for (int i = 2; i < vertexIndices.size(); i += 3)
+    {
+        newIndices.push_back(vertexIndices[i - 2]);
+        newIndices.push_back(vertexIndices[i - 1]);
+        newIndices.push_back(vertexIndices[i - 2]);
+        newIndices.push_back(vertexIndices[i]);
+        newIndices.push_back(vertexIndices[i - 1]);
+        newIndices.push_back(vertexIndices[i]);
+    }
+
+    Object newObject(ObjectType::LINES, aObject.getVertexes(), newIndices);
+    newObject.setColor(sf::Color::Black);
+
+    projectLines(newObject, aTransformedVertexes, aWindow);
 }
 
 void Projector::projectObjects(sf::RenderWindow& aWindow) {

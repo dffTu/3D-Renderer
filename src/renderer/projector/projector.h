@@ -24,6 +24,10 @@ private:
     Vec2 projectVertex(const Vec3& aVertex) const;
     std::vector<Vec2> projectVertexes(const std::vector<Vec3>& aVertexes) const;
 
+    void projectLines(const Object& aObject, const std::vector<Vec3>& aTransformedVertexes, sf::RenderWindow& aWindow);
+    void projectPolygons(const Object& aObject, const std::vector<Vec3>& aTransformedVertexes, sf::RenderWindow& aWindow);
+    void projectPolygonsOutline(const Object& aObject, const std::vector<Vec3>& aTransformedVertexes, sf::RenderWindow& aWindow);
+
     World world_;
     Camera camera_;
 };

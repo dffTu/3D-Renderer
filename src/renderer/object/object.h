@@ -2,12 +2,14 @@
 
 #include <renderer/utils/linalg.h>
 #include <vector>
+#include <SFML/Graphics.hpp>
 
 enum ObjectType {
     VERTEXES,
     LINES,
     LINE_STRIP,
-    POLYGONS
+    POLYGONS,
+    POLYGONS_WITH_OUTLINE
 };
 
 class Object {
@@ -23,12 +25,14 @@ public:
     Object& setObjectType(ObjectType aObjectType);
     Object& setVertexes(const std::vector<Vec3>& aVertexes);
     Object& setVertexIndices(const std::vector<int>& aVertexIndices);
+    Object& setColor(const sf::Color& aColor);
 
     Object& addVertex(const Vec3& aVertex, int vertexIndice);
 
     ObjectType getObjectType() const;
     std::vector<Vec3> getVertexes() const;
     std::vector<int> getVertexIndices() const;
+    sf::Color getColor() const;
     Mat4 getTransformMatrix() const;
 
     void move(const Vec3& aOffset);
@@ -41,4 +45,5 @@ private:
     std::vector<Vec3> vertexes_;
     std::vector<int> vertexIndices_;
     Mat4 transformMatrix_;
+    sf::Color color_;
 };
