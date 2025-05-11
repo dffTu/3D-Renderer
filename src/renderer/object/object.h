@@ -44,6 +44,7 @@ private:
     ObjectType objectType_;
     std::vector<Vec3> vertexes_;
     std::vector<int> vertexIndices_;
-    Mat4 transformMatrix_;
+    Mat4 moveMatrix_;
+    Mat4 rotateMatrix_;
     sf::Color color_;
 };

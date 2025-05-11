@@ -5,7 +5,8 @@ Object::Object() {
     objectType_ = ObjectType::VERTEXES;
     vertexes_ = {};
     vertexIndices_ = {};
-    transformMatrix_ = getDefaultMat4();
+    rotateMatrix_ = getDefaultMat4();
+    moveMatrix_ = getDefaultMat4();
     color_ = sf::Color::Black;
 }
 
@@ -13,7 +14,8 @@ Object::Object(ObjectType aObjectType, const std::vector<Vec3>& aVertexes, const
     objectType_ = aObjectType;
     vertexes_ = aVertexes;
     vertexIndices_ = aVertexIndices;
-    transformMatrix_ = getDefaultMat4();
+    rotateMatrix_ = getDefaultMat4();
+    moveMatrix_ = getDefaultMat4();
     color_ = sf::Color::Black;
 }
 
@@ -21,7 +23,8 @@ Object::Object(const Object& aObject) {
     objectType_ = aObject.objectType_;
     vertexes_ = aObject.vertexes_;
     vertexIndices_ = aObject.vertexIndices_;
-    transformMatrix_ = aObject.transformMatrix_;
+    rotateMatrix_ = aObject.rotateMatrix_;
+    moveMatrix_ = aObject.moveMatrix_;
     color_ = aObject.color_;
 }
 
@@ -29,7 +32,8 @@ Object::Object(Object&& aObject) {
     objectType_ = aObject.objectType_;
     vertexes_.swap(aObject.vertexes_);
     vertexIndices_.swap(aObject.vertexIndices_);
-    transformMatrix_.swap(aObject.transformMatrix_);
+    rotateMatrix_.swap(aObject.rotateMatrix_);
+    moveMatrix_.swap(aObject.moveMatrix_);
     color_ = aObject.color_;
 }
 
@@ -37,7 +41,8 @@ Object& Object::operator=(const Object& aObject) {
     objectType_ = aObject.objectType_;
     vertexes_ = aObject.vertexes_;
     vertexIndices_ = aObject.vertexIndices_;
-    transformMatrix_ = aObject.transformMatrix_;
+    rotateMatrix_ = aObject.rotateMatrix_;
+    moveMatrix_ = aObject.moveMatrix_;
     color_ = aObject.color_;
     return *this;
 }
@@ -46,7 +51,8 @@ Object& Object::operator=(Object&& aObject) {
     objectType_ = aObject.objectType_;
     vertexes_.swap(aObject.vertexes_);
     vertexIndices_.swap(aObject.vertexIndices_);
-    transformMatrix_.swap(aObject.transformMatrix_);
+    rotateMatrix_.swap(aObject.rotateMatrix_);
+    moveMatrix_.swap(aObject.moveMatrix_);
     color_ = aObject.color_;
     return *this;
 }
@@ -94,21 +100,21 @@ sf::Color Object::getColor() const {
 }
 
 Mat4 Object::getTransformMatrix() const {
-    return transformMatrix_;
+    return moveMatrix_ * rotateMatrix_;
 }
 
 void Object::move(const Vec3& aOffset) {
-    transformMatrix_ = getMoveMatrix(aOffset) * transformMatrix_;
+    moveMatrix_ = getMoveMatrix(aOffset) * moveMatrix_;
 }
 
 void Object::rotateX(double aRadians) {
-    transformMatrix_ = getXRotationMatrix(aRadians) * transformMatrix_;
+    rotateMatrix_ = getXRotationMatrix(aRadians) * rotateMatrix_;
 }
 
 void Object::rotateY(double aRadians) {
-    transformMatrix_ = getYRotationMatrix(aRadians) * transformMatrix_;
+    rotateMatrix_ = getYRotationMatrix(aRadians) * rotateMatrix_;
 }
 
 void Object::rotateZ(double aRadians) {
-    transformMatrix_ = getZRotationMatrix(aRadians) * transformMatrix_;
+    rotateMatrix_ = getZRotationMatrix(aRadians) * rotateMatrix_;
 }
