@@ -12,32 +12,26 @@ Projector::Projector() :
     frameBuffer_ = sf::Image({camera_.width, camera_.height}, sf::Color::Transparent);
 }
 
-void Projector::projectObject(const Object& aObject, sf::RenderWindow& aWindow)
+void Projector::projectObject(const Object& aObject)
 {
     std::vector<Vec3> transformedVertexes = transformVertexes(aObject);
     std::vector<Vec2> screenVertexes = projectVertexes(transformedVertexes);
     std::vector<int> vertexIndices = aObject.getVertexIndices();
 
-    for (const auto& vertex : screenVertexes)
-    {
-        auto circle = sf::CircleShape(6);
-        circle.setPosition({vertex[0] - 6, vertex[1] - 6});
-        aWindow.draw(circle);
-    }
     if (aObject.getObjectType() == ObjectType::LINES)
     {
-        projectLines(aObject, transformedVertexes, aWindow);
+        projectLines(aObject, transformedVertexes);
     }
     else if (aObject.getObjectType() == ObjectType::LINE_STRIP)
     {
-        projectLines(aObject, transformedVertexes, aWindow);
+        projectLines(aObject, transformedVertexes);
     }
     else if (aObject.getObjectType() == ObjectType::POLYGONS) {
-        projectPolygons(aObject, transformedVertexes, aWindow);
+        projectPolygons(aObject, transformedVertexes);
     }
     else if (aObject.getObjectType() == ObjectType::POLYGONS_WITH_OUTLINE) {
-        projectPolygons(aObject, transformedVertexes, aWindow);
-        projectPolygonsOutline(aObject, transformedVertexes, aWindow);
+        projectPolygons(aObject, transformedVertexes);
+        projectPolygonsOutline(aObject, transformedVertexes);
     }
 }
 
@@ -87,7 +81,7 @@ void Projector::projectLine(const Vec3& a, const Vec3& b, const sf::Color& color
     }
 }
 
-void Projector::projectLines(const Object& aObject, const std::vector<Vec3>& aTransformedVertexes, sf::RenderWindow& aWindow)
+void Projector::projectLines(const Object& aObject, const std::vector<Vec3>& aTransformedVertexes)
 {
     std::vector<sf::Vertex> lineVertexes;
     std::vector<int> vertexIndices = aObject.getVertexIndices();
@@ -110,10 +104,91 @@ void Projector::projectLines(const Object& aObject, const std::vector<Vec3>& aTr
     }
 }
 
+void Projector::projectPolygon(
+    const std::tuple<Vec3, Vec3, Vec3>& polygon,
+    const sf::Color& color)
+{
+    std::vector<std::pair<Vec2, float>> screenVertexesAndDepths =
+    {
+        {projectVertex(std::get<0>(polygon)), std::get<0>(polygon)[2]},
+        {projectVertex(std::get<1>(polygon)), std::get<1>(polygon)[2]},
+        {projectVertex(std::get<2>(polygon)), std::get<2>(polygon)[2]}
+    };
+
+    std::sort(
+        screenVertexesAndDepths.begin(),
+        screenVertexesAndDepths.end(),
+        [&](const std::pair<Vec2, float>& a, const std::pair<Vec2, float>& b)
+        {
+            return a.first[1] < b.first[1];
+        });
+    
+    std::vector<Vec2> screenVertexes =
+    {
+        screenVertexesAndDepths[0].first,
+        screenVertexesAndDepths[1].first,
+        screenVertexesAndDepths[2].first
+    };
+
+    Vec2 tmpPoint(
+        screenVertexes[0][0] + (screenVertexes[1][1] - screenVertexes[0][1])
+            * (screenVertexes[2][0] - screenVertexes[0][0]) / (screenVertexes[2][1] - screenVertexes[0][1]),
+        screenVertexes[1][1]
+    );
+
+    std::tuple<Vec2, Vec2, Vec2> screenVertices = std::make_tuple(screenVertexes[0], screenVertexes[1], screenVertexes[2]);
+    std::tuple<float, float, float> depths = std::make_tuple(
+        screenVertexesAndDepths[0].second,
+        screenVertexesAndDepths[1].second,
+        screenVertexesAndDepths[2].second);
+
+    for (int i = 0; i < 2; ++i)
+    {
+        if (std::abs(screenVertexes[i + 1][1] - screenVertexes[i][1]) <= 0.001) continue;
+        int yLeftBorder = std::max(0, int(screenVertexes[i][1]));
+        int yRightBorder = screenVertexes[i + 1][1];
+
+        for (int y = yLeftBorder; y < yRightBorder && y < camera_.height; ++y)
+        {
+            Vec2 leftPoint, rightPoint;
+
+            if (i == 0)
+            {
+                float t = (y - screenVertexes[0][1]) / (screenVertexes[1][1] - screenVertexes[0][1]);
+
+                leftPoint = lerp(screenVertexes[0], screenVertexes[1], t);
+                rightPoint = lerp(screenVertexes[0], tmpPoint, t);
+            }
+            else
+            {
+                float t = (y - screenVertexes[1][1]) / (screenVertexes[2][1] - screenVertexes[1][1]);
+
+                leftPoint = lerp(screenVertexes[1], screenVertexes[2], t);
+                rightPoint = lerp(tmpPoint, screenVertexes[2], t);
+            }
+
+            if (leftPoint[0] > rightPoint[0]) std::swap(leftPoint, rightPoint);
+
+            for (int x = std::max(0, int(leftPoint[0])); x <= int(rightPoint[0]) && x < camera_.width; ++x)
+            {
+                if (!isPointInTriangle(x, y, screenVertexes[0], screenVertexes[1], screenVertexes[2])) {
+                    continue;
+                }
+
+                float z = interpolateDepth(x, y, screenVertices, depths);
+
+                if (z < zBuffer_[y * camera_.width + x]) {
+                    zBuffer_[y * camera_.width + x] = z;
+                    colors_[y * camera_.width + x] = color;
+                }
+            }
+        }
+    }
+}
+
 void Projector::projectPolygons(
     const Object& aObject,
-    const std::vector<Vec3>& aTransformedVertexes,
-    sf::RenderWindow& aWindow)
+    const std::vector<Vec3>& aTransformedVertexes)
 {
     std::vector<int> vertexIndices = aObject.getVertexIndices();
     sf::Color color = aObject.getColor();
@@ -130,38 +205,14 @@ void Projector::projectPolygons(
         
         for (const std::tuple<Vec3, Vec3, Vec3>& polygon : polygonsClipped)
         {
-            Vec2 p1 = projectVertex(std::get<0>(polygon));
-            Vec2 p2 = projectVertex(std::get<1>(polygon));
-            Vec2 p3 = projectVertex(std::get<2>(polygon));
-
-            const auto screenVertices = std::make_tuple(p1, p2, p3);
-            const auto depths = std::make_tuple(std::get<0>(polygon)[2], std::get<1>(polygon)[2], std::get<2>(polygon)[2]);
-
-            for (int y = std::max(0, int(std::min({p1[1], p2[1], p3[1]}))); y <= int(std::max({p1[1], p2[1], p3[1]})) && y < cameraHeight; ++y)
-            {
-                for (int x = std::max(0, int(std::min({p1[0], p2[0], p3[0]}))); x <= int(std::max({p1[0], p2[0], p3[0]})) && x < cameraWidth; ++x)
-                {
-                    if (!isPointInTriangle(x, y, p1, p2, p3)) {
-                        continue;
-                    }
-        
-                    float z = interpolateDepth(x, y, screenVertices, depths);
-
-                    if (z < zBuffer_[y * cameraWidth + x]) {
-                        zBuffer_[y * cameraWidth + x] = z;
-                        colors_[y * cameraWidth + x] = color;
-                    }
-                }
-            }
+            projectPolygon(polygon, color);
         }
-
     }
 }
 
 void Projector::projectPolygonsOutline(
     const Object& aObject,
-    const std::vector<Vec3>& aTransformedVertexes,
-    sf::RenderWindow& aWindow)
+    const std::vector<Vec3>& aTransformedVertexes)
 {
     std::vector<int> newIndices;
     std::vector<int> vertexIndices = aObject.getVertexIndices();
@@ -178,7 +229,7 @@ void Projector::projectPolygonsOutline(
 
     Object newObject(ObjectType::LINES, aObject.getVertexes(), newIndices);
 
-    projectLines(newObject, aTransformedVertexes, aWindow);
+    projectLines(newObject, aTransformedVertexes);
 }
 
 void Projector::projectObjects(sf::RenderWindow& aWindow)
@@ -188,7 +239,7 @@ void Projector::projectObjects(sf::RenderWindow& aWindow)
     
     auto worldObjects = world_.getObjects();
     for (const auto& object : worldObjects) {
-        projectObject(object, aWindow);
+        projectObject(object);
     }
 
     for (size_t y = 0; y < camera_.height; ++y)

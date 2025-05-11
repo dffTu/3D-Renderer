@@ -9,7 +9,7 @@ class Projector {
 public:
     Projector();
 
-    void projectObject(const Object& aObject, sf::RenderWindow& aWindow);
+    void projectObject(const Object& aObject);
     void projectObjects(sf::RenderWindow& aWindow);
 
     World& getWorld();
@@ -25,9 +25,11 @@ private:
     std::vector<Vec2> projectVertexes(const std::vector<Vec3>& aVertexes) const;
 
     void projectLine(const Vec3& p1, const Vec3& p2, const sf::Color& color, const std::vector<Vec3>& aTransformedVertexes);
-    void projectLines(const Object& aObject, const std::vector<Vec3>& aTransformedVertexes, sf::RenderWindow& aWindow);
-    void projectPolygons(const Object& aObject, const std::vector<Vec3>& aTransformedVertexes, sf::RenderWindow& aWindow);
-    void projectPolygonsOutline(const Object& aObject, const std::vector<Vec3>& aTransformedVertexes, sf::RenderWindow& aWindow);
+    void projectLines(const Object& aObject, const std::vector<Vec3>& aTransformedVertexes);
+
+    void projectPolygon(const std::tuple<Vec3, Vec3, Vec3>& polygon, const sf::Color& color);
+    void projectPolygons(const Object& aObject, const std::vector<Vec3>& aTransformedVertexes);
+    void projectPolygonsOutline(const Object& aObject, const std::vector<Vec3>& aTransformedVertexes);
 
     std::vector<float> zBuffer_;
     std::vector<sf::Color> colors_;

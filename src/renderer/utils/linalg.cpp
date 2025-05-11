@@ -104,3 +104,8 @@ float interpolateDepth(
     calculateBarycentric(x, y, screenVertices, alpha, beta, gamma);
     return alpha * std::get<0>(depths) + beta * std::get<1>(depths) + gamma * std::get<2>(depths);
 }
+
+Vec2 lerp(const Vec2& a, const Vec2& b, float t)
+{
+    return a + (b - a) * t;
+}

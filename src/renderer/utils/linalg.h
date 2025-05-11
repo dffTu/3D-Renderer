@@ -25,3 +25,5 @@ float interpolateDepth(
     int y,
     const std::tuple<Vec2, Vec2, Vec2>& screenVertices,
     const std::tuple<float, float, float>& depths);
+
+Vec2 lerp(const Vec2& a, const Vec2& b, float t);
