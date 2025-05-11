@@ -1,8 +1,19 @@
 #include "projector.h"
 #include <renderer/object/object.h>
 #include <tuple>
+#include <iostream>
 
-void Projector::projectObject(const Object& aObject, sf::RenderWindow& aWindow) {
+Projector::Projector() :
+    world_(),
+    camera_()
+{
+    zBuffer_.resize(camera_.height * camera_.width, std::numeric_limits<float>::max());
+    colors_.resize(camera_.height * camera_.width, sf::Color::White);
+    frameBuffer_ = sf::Image({camera_.width, camera_.height}, sf::Color::Transparent);
+}
+
+void Projector::projectObject(const Object& aObject, sf::RenderWindow& aWindow)
+{
     std::vector<Vec3> transformedVertexes = transformVertexes(aObject);
     std::vector<Vec2> screenVertexes = projectVertexes(transformedVertexes);
     std::vector<int> vertexIndices = aObject.getVertexIndices();
@@ -30,7 +41,54 @@ void Projector::projectObject(const Object& aObject, sf::RenderWindow& aWindow) 
     }
 }
 
-void Projector::projectLines(const Object& aObject, const std::vector<Vec3>& aTransformedVertexes, sf::RenderWindow& aWindow) {
+void Projector::projectLine(const Vec3& a, const Vec3& b, const sf::Color& color, const std::vector<Vec3>& aTransformedVertexes)
+{
+    Vec2 p1 = projectVertex(a);
+    Vec2 p2 = projectVertex(b);
+
+    if ((p1 - p2).norm() <= 0.0001) return;
+
+    int x1 = static_cast<int>(std::round(p1[0]));
+    int y1 = static_cast<int>(std::round(p1[1]));
+    int x2 = static_cast<int>(std::round(p2[0]));
+    int y2 = static_cast<int>(std::round(p2[1]));
+
+    int dx = abs(x2 - x1);
+    int dy = abs(y2 - y1);
+
+    if (dx == 0 && dy == 0) return;
+
+    int sx = (x1 < x2) ? 1 : -1;
+    int sy = (y1 < y2) ? 1 : -1;
+    int err = dx - dy;
+
+    double z = a[2];
+    double zStep = (p2[2] - p1[2]) / std::max(dx, dy);
+
+    while (true) {
+
+        if (0 <= x1 && x1 < camera_.width && 0 <= y1 && y1 < camera_.height && (z < zBuffer_[y1 * camera_.width + x1] || std::abs(z - zBuffer_[y1 * camera_.width + x1]) <= 1))
+        {
+            zBuffer_[y1 * camera_.width + x1] = z;
+            colors_[y1 * camera_.width + x1] = color;
+        }
+
+        if (x1 == x2 && y1 == y2) break;
+
+        int e2 = 2 * err;
+        if (e2 > -dy) {
+            err -= dy;
+            x1 += sx;
+        }
+        if (e2 < dx) {
+            err += dx;
+            y1 += sy;
+        }
+    }
+}
+
+void Projector::projectLines(const Object& aObject, const std::vector<Vec3>& aTransformedVertexes, sf::RenderWindow& aWindow)
+{
     std::vector<sf::Vertex> lineVertexes;
     std::vector<int> vertexIndices = aObject.getVertexIndices();
 
@@ -47,25 +105,20 @@ void Projector::projectLines(const Object& aObject, const std::vector<Vec3>& aTr
 
         if (clippedLine.has_value())
         {
-            Vec2 p1 = projectVertex(std::get<0>(clippedLine.value()));
-            Vec2 p2 = projectVertex(std::get<1>(clippedLine.value()));
-
-            lineVertexes.push_back(sf::Vertex{{p1[0], p1[1]}});
-            lineVertexes.push_back(sf::Vertex{{p2[0], p2[1]}});
+            projectLine(std::get<0>(clippedLine.value()), std::get<1>(clippedLine.value()), aObject.getColor(), aTransformedVertexes);
         }
     }
-
-    for (auto& vertex : lineVertexes)
-    {
-        vertex.color = aObject.getColor();
-    }
-
-    aWindow.draw(lineVertexes.data(), lineVertexes.size(), sf::PrimitiveType::Lines);
 }
 
-void Projector::projectPolygons(const Object& aObject, const std::vector<Vec3>& aTransformedVertexes, sf::RenderWindow& aWindow) {
-    std::vector<sf::Vertex> lineVertexes;
+void Projector::projectPolygons(
+    const Object& aObject,
+    const std::vector<Vec3>& aTransformedVertexes,
+    sf::RenderWindow& aWindow)
+{
     std::vector<int> vertexIndices = aObject.getVertexIndices();
+    sf::Color color = aObject.getColor();
+    int cameraWidth = camera_.width;
+    int cameraHeight = camera_.height;
 
     for (int i = 2; i < vertexIndices.size(); i += 3)
     {
@@ -81,26 +134,35 @@ void Projector::projectPolygons(const Object& aObject, const std::vector<Vec3>& 
             Vec2 p2 = projectVertex(std::get<1>(polygon));
             Vec2 p3 = projectVertex(std::get<2>(polygon));
 
-            sf::ConvexShape convex;
-            convex.setPointCount(3);
-            convex.setPoint(0, {p1[0], p1[1]});
-            convex.setPoint(1, {p2[0], p2[1]});
-            convex.setPoint(2, {p3[0], p3[1]});
-            convex.setFillColor(aObject.getColor());
+            const auto screenVertices = std::make_tuple(p1, p2, p3);
+            const auto depths = std::make_tuple(std::get<0>(polygon)[2], std::get<1>(polygon)[2], std::get<2>(polygon)[2]);
 
-            aWindow.draw(convex);
+            for (int y = std::max(0, int(std::min({p1[1], p2[1], p3[1]}))); y <= int(std::max({p1[1], p2[1], p3[1]})) && y < cameraHeight; ++y)
+            {
+                for (int x = std::max(0, int(std::min({p1[0], p2[0], p3[0]}))); x <= int(std::max({p1[0], p2[0], p3[0]})) && x < cameraWidth; ++x)
+                {
+                    if (!isPointInTriangle(x, y, p1, p2, p3)) {
+                        continue;
+                    }
+        
+                    float z = interpolateDepth(x, y, screenVertices, depths);
+
+                    if (z < zBuffer_[y * cameraWidth + x]) {
+                        zBuffer_[y * cameraWidth + x] = z;
+                        colors_[y * cameraWidth + x] = color;
+                    }
+                }
+            }
         }
-    }
 
-    for (auto& vertex : lineVertexes)
-    {
-        vertex.color = sf::Color::Black;
     }
-
-    aWindow.draw(lineVertexes.data(), lineVertexes.size(), sf::PrimitiveType::Lines);
 }
 
-void Projector::projectPolygonsOutline(const Object& aObject, const std::vector<Vec3>& aTransformedVertexes, sf::RenderWindow& aWindow) {
+void Projector::projectPolygonsOutline(
+    const Object& aObject,
+    const std::vector<Vec3>& aTransformedVertexes,
+    sf::RenderWindow& aWindow)
+{
     std::vector<int> newIndices;
     std::vector<int> vertexIndices = aObject.getVertexIndices();
 
@@ -115,27 +177,46 @@ void Projector::projectPolygonsOutline(const Object& aObject, const std::vector<
     }
 
     Object newObject(ObjectType::LINES, aObject.getVertexes(), newIndices);
-    newObject.setColor(sf::Color::Black);
 
     projectLines(newObject, aTransformedVertexes, aWindow);
 }
 
-void Projector::projectObjects(sf::RenderWindow& aWindow) {
+void Projector::projectObjects(sf::RenderWindow& aWindow)
+{
+    std::fill(zBuffer_.begin(), zBuffer_.end(), std::numeric_limits<float>::max());
+    std::fill(colors_.begin(), colors_.end(), sf::Color::White);
+    
     auto worldObjects = world_.getObjects();
     for (const auto& object : worldObjects) {
         projectObject(object, aWindow);
     }
+
+    for (size_t y = 0; y < camera_.height; ++y)
+    {
+        for (size_t x = 0; x < camera_.width; ++x)
+        {
+            frameBuffer_.setPixel(sf::Vector2u(x, y), colors_[y * camera_.width + x]);
+        }
+    }
+
+    sf::Texture texture;
+    bool _ = texture.loadFromImage(frameBuffer_);
+    sf::Sprite sprite(texture);
+    aWindow.draw(sprite);
 }
 
-World& Projector::getWorld() {
+World& Projector::getWorld()
+{
     return world_;
 }
 
-Camera& Projector::getCamera() {
+Camera& Projector::getCamera()
+{
     return camera_;
 }
 
-std::optional<std::tuple<Vec3, Vec3>> Projector::clipLine(Vec3 p1, Vec3 p2) const {
+std::optional<std::tuple<Vec3, Vec3>> Projector::clipLine(Vec3 p1, Vec3 p2) const
+{
     std::vector<Vec2> result;
     double z_plane = camera_.getZPlane();
 
@@ -156,7 +237,8 @@ std::optional<std::tuple<Vec3, Vec3>> Projector::clipLine(Vec3 p1, Vec3 p2) cons
     return std::make_tuple(p1, p1 + t * (p1 - p2));
 }
 
-std::vector<std::tuple<Vec3, Vec3, Vec3>> Projector::clipPolygon(const Vec3& p1, const Vec3& p2, const Vec3& p3) const {
+std::vector<std::tuple<Vec3, Vec3, Vec3>> Projector::clipPolygon(const Vec3& p1, const Vec3& p2, const Vec3& p3) const
+{
     std::vector<std::tuple<Vec3, Vec3, Vec3>> result;
     double z_plane = camera_.getZPlane();
     std::vector<Vec3> vertexes{p1, p2, p3};
@@ -201,7 +283,8 @@ std::vector<std::tuple<Vec3, Vec3, Vec3>> Projector::clipPolygon(const Vec3& p1,
     return result;
 }
 
-Vec3 Projector::transformVertex(const Object& aObject, const Vec3& aVertex) const {
+Vec3 Projector::transformVertex(const Object& aObject, const Vec3& aVertex) const
+{
 
     Vec4 transformed =
         camera_.getTransformMatrix()
@@ -210,7 +293,8 @@ Vec3 Projector::transformVertex(const Object& aObject, const Vec3& aVertex) cons
     return Vec3(transformed[0], transformed[1], transformed[2]);
 }
 
-std::vector<Vec3> Projector::transformVertexes(const Object& aObject) const {
+std::vector<Vec3> Projector::transformVertexes(const Object& aObject) const
+{
     std::vector<Vec3> result;
     for (const Vec3& vertex: aObject.getVertexes()) {
         result.push_back(transformVertex(aObject, vertex));
@@ -228,13 +312,14 @@ Vec2 Projector::projectVertex(const Vec3& aVertex) const {
     double x_proj = aVertex[0] * scale / z;
     double y_proj = -aVertex[1] * scale / z;
 
-    double screen_x = (x_proj + 1.0) * camera_.getWidth() / 2;
-    double screen_y = (y_proj + 1.0) * camera_.getHeight() / 2;
+    double screen_x = (x_proj + 1.0) * camera_.width / 2;
+    double screen_y = (y_proj + 1.0) * camera_.height / 2;
 
     return {screen_x, screen_y};
 }
 
-std::vector<Vec2> Projector::projectVertexes(const std::vector<Vec3>& aVertexes) const {
+std::vector<Vec2> Projector::projectVertexes(const std::vector<Vec3>& aVertexes) const
+{
     std::vector<Vec2> result;
     for (const auto& vertex : aVertexes) {
         result.push_back(projectVertex(vertex));

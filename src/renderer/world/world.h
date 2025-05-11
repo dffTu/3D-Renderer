@@ -5,12 +5,12 @@
 class World {
 public:
     World() = default;
-    void addObject(const Object& aObject);
+    void addObject(Object& aObject);
 
-    std::vector<Object> getObjects() const;
+    std::vector<std::reference_wrapper<Object>> getObjects() const;
 
     Object& getObject(int index);
 
 private:
-    std::vector<Object> worldObjects_;
+    std::vector<std::reference_wrapper<Object>> worldObjects_;
 };

@@ -6,7 +6,7 @@ Object::Object() {
     vertexes_ = {};
     vertexIndices_ = {};
     transformMatrix_ = getDefaultMat4();
-    color_ = sf::Color::White;
+    color_ = sf::Color::Black;
 }
 
 Object::Object(ObjectType aObjectType, const std::vector<Vec3>& aVertexes, const std::vector<int>& aVertexIndices) {
@@ -14,7 +14,7 @@ Object::Object(ObjectType aObjectType, const std::vector<Vec3>& aVertexes, const
     vertexes_ = aVertexes;
     vertexIndices_ = aVertexIndices;
     transformMatrix_ = getDefaultMat4();
-    color_ = sf::Color::White;
+    color_ = sf::Color::Black;
 }
 
 Object::Object(const Object& aObject) {

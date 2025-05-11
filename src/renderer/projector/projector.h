@@ -7,7 +7,7 @@
 
 class Projector {
 public:
-    Projector() = default;
+    Projector();
 
     void projectObject(const Object& aObject, sf::RenderWindow& aWindow);
     void projectObjects(sf::RenderWindow& aWindow);
@@ -24,9 +24,14 @@ private:
     Vec2 projectVertex(const Vec3& aVertex) const;
     std::vector<Vec2> projectVertexes(const std::vector<Vec3>& aVertexes) const;
 
+    void projectLine(const Vec3& p1, const Vec3& p2, const sf::Color& color, const std::vector<Vec3>& aTransformedVertexes);
     void projectLines(const Object& aObject, const std::vector<Vec3>& aTransformedVertexes, sf::RenderWindow& aWindow);
     void projectPolygons(const Object& aObject, const std::vector<Vec3>& aTransformedVertexes, sf::RenderWindow& aWindow);
     void projectPolygonsOutline(const Object& aObject, const std::vector<Vec3>& aTransformedVertexes, sf::RenderWindow& aWindow);
+
+    std::vector<float> zBuffer_;
+    std::vector<sf::Color> colors_;
+    sf::Image frameBuffer_; 
 
     World world_;
     Camera camera_;

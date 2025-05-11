@@ -18,3 +18,10 @@ Mat4 getMoveMatrix(const Vec3& aVec3);
 Mat4 getXRotationMatrix(double aRadians);
 Mat4 getYRotationMatrix(double aRadians);
 Mat4 getZRotationMatrix(double aRadians);
+
+bool isPointInTriangle(int x, int y, const Vec2& a, const Vec2& b, const Vec2& c);
+float interpolateDepth(
+    int x,
+    int y,
+    const std::tuple<Vec2, Vec2, Vec2>& screenVertices,
+    const std::tuple<float, float, float>& depths);

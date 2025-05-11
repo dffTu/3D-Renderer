@@ -1,10 +1,12 @@
 #include "camera.h"
 #include <renderer/utils/constants.h>
 
-Camera::Camera() : sensitivity_(0.1) {
+Camera::Camera() :
+    sensitivity_(0.1),
+    height(constants::CAMERA_HEIGHT),
+    width(constants::CAMERA_WIDTH)
+{
     zPlane_ = constants::Z_PLANE;
-    height_ = constants::CAMERA_HEIGHT;
-    width_ = constants::CAMERA_WIDTH;
     position_ = Vec3(0, 0, 0);
     direction_ = Vec3(0, 0, 1);
     up_ = Vec3(0, 1, 0);
@@ -14,14 +16,6 @@ Camera::Camera() : sensitivity_(0.1) {
 
 double Camera::getZPlane() const {
     return zPlane_;
-}
-
-unsigned int Camera::getHeight() const {
-    return height_;
-}
-
-unsigned int Camera::getWidth() const {
-    return width_;
 }
 
 Vec3 Camera::getPosition() const {
