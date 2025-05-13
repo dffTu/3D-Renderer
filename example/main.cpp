@@ -1,40 +1,77 @@
 #include <renderer/projector/projector.h>
 #include <thread>
+#include <iostream>
+#include <deque>
 
 int main()
 {
-
-    Object object(
-        ObjectType::LINES,
-        {Vec3{50, 50, 50}, Vec3{50, -50, 50}, Vec3{-50, -50, 50}, Vec3{-50, 50, 50},
-        Vec3{50, 50, -50}, Vec3{50, -50, -50}, Vec3{-50, -50, -50}, Vec3{-50, 50, -50}},
-        {0, 1, 1, 2, 2, 3, 3, 0, 4, 5, 5, 6, 6, 7, 7, 4, 0, 4, 1, 5, 2, 6, 3, 7}
-    );
-
-    float a = 50;
-
-
-    // Object object(
-    //     ObjectType::LINES,
-    //     {Vec3{0, 0, 0}, Vec3{a, 0, 0}, Vec3{a / 2, -a * float(sqrt(3)) / 2, 0}, Vec3{a / 2, -a * float(sqrt(3)) / 6, a * float(sqrt(6)) / 3}},
-    //     {0, 1, 0, 2, 0, 3, 1, 2, 1, 3, 2, 3}
-    // );
-
     Projector projector;
 
     World& world = projector.getWorld();
     Camera& camera = projector.getCamera();
 
-    world.addObject(object);
-    camera.move({0, 0, -100});
+    const int cubes_count = 50;
 
-    sf::RenderWindow window(sf::VideoMode({camera.getWidth(), camera.getHeight()}), "3D Renderer");
+    std::vector<Object> objects;
+
+    for (size_t i = 0; i < cubes_count; ++i)
+    {
+        for (size_t j = 0; j < cubes_count; ++j)
+        {
+            Object obj(
+                ObjectType::POLYGONS,
+                {Vec3{50, 50, 50}, Vec3{50, -50, 50}, Vec3{-50, -50, 50}, Vec3{-50, 50, 50},
+                Vec3{50, 50, -50}, Vec3{50, -50, -50}, Vec3{-50, -50, -50}, Vec3{-50, 50, -50}},
+                {0, 1, 2, 0, 2, 3, 0, 1, 5, 0, 5, 4, 2, 3, 6, 3, 7, 6, 4, 5, 6, 4, 6, 7, 0, 3, 4, 3, 4, 7, 1, 2, 5, 2, 5, 6});
+            obj.move(Vec3{float(110 * i), float(110 * j), 0});
+            obj.setColor(sf::Color::Green);
+            objects.push_back(obj);
+        }
+    }
+
+    for (size_t i = 0; i < objects.size(); ++i)
+    {
+        world.addObject(objects[i]);
+    }
+
+    sf::RenderWindow window(sf::VideoMode({camera.width, camera.height}), "3D Renderer");
 
     sf::Vector2i lastMousePos = sf::Mouse::getPosition(window);
     sf::Vector2i center(window.getSize().x / 2, window.getSize().y / 2);
 
+    sf::Mouse::setPosition(center, window);
+
+    double deltaXSum = 0, deltaYSum = 0;
+
+    sf::Clock clock;
+
+    float lastTime = 0;
+    int fps;
+
+    bool showFps = true;
+
+    float cameraVelocity = 600;
+    float spinningVelocity = 300;
+
+    std::deque<size_t> fpsDeque;
+
     while (window.isOpen())
     {
+        float time = clock.restart().asSeconds();
+
+        auto now = std::chrono::system_clock::now().time_since_epoch();
+        size_t nowMs = std::chrono::duration_cast<std::chrono::milliseconds>(now).count();
+
+        fpsDeque.push_back(nowMs);
+        while (!fpsDeque.empty() && fpsDeque.front() + 1000 < nowMs)
+        {
+            fpsDeque.pop_front();
+        }
+
+        fps = fpsDeque.size();
+
+        if (fps > 2000) fps = 2000;
+
         window.setMouseCursorVisible(false);
         window.clear();
         while (const std::optional event = window.pollEvent())
@@ -51,22 +88,22 @@ int main()
         }
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A)) {
-            camera.move(-camera.getRight());
+            camera.move(-camera.getRight() * time * cameraVelocity);
         }
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W)) {
-            camera.move(camera.getDirection());
+            camera.move(camera.getDirection() * time * cameraVelocity);
         }
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D)) {
-            camera.move(camera.getRight());
+            camera.move(camera.getRight() * time * cameraVelocity);
         }
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S)) {
-            camera.move(-camera.getDirection());
+            camera.move(-camera.getDirection() * time * cameraVelocity);
         }
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space)) {
-            camera.move(camera.getUp());
+            camera.move(camera.getUp() * time * cameraVelocity);
         }
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift)) {
-            camera.move(-camera.getUp());
+            camera.move(-camera.getUp() * time * cameraVelocity);
         }
 
         sf::Vector2i currentMousePos = sf::Mouse::getPosition(window);
@@ -74,15 +111,25 @@ int main()
 
         sf::Mouse::setPosition(center, window);
 
-        camera.updateDirection({delta.x, delta.y});
+        camera.updateDirection(Vec2{delta.x, delta.y});
+        deltaXSum += delta.x;
+        deltaYSum += delta.y;
 
         projector.projectObjects(window);
-        // projector.getWorld().getObject(0).rotateX(0.005);
-        // projector.getWorld().getObject(0).rotateY(0.005);
-        projector.getWorld().getObject(0).rotateZ(0.01);
+        
+        for (size_t i = 0; i < objects.size(); ++i)
+        {
+            objects[i].rotateX(0.01 * time * spinningVelocity);
+            objects[i].rotateY(0.01 * time * spinningVelocity);
+            objects[i].rotateZ(0.01 * time * spinningVelocity);
+            objects[i].move({0, 0, -float(10) * i * time});
+        }
 
-        using namespace std::chrono_literals;
-        std::this_thread::sleep_for(5ms);
+        sf::Font font("arial.ttf");
+        sf::Text text(font);
+        text.setString(std::to_string(int(fps)));
+        text.setFillColor(sf::Color::Red);
+        window.draw(text);
 
         window.display();
     }
