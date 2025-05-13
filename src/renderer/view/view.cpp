@@ -5,8 +5,10 @@ View::View(sf::RenderWindow* windowPtr) :
 {
 }
 
-void View::show(const Screen& screen)
+void View::show(const Screen& screen, const int fps)
 {
+    windowPtr_->clear();
+
     sf::Image frameBuffer(
         {
             static_cast<unsigned int>(screen.width),
@@ -26,4 +28,12 @@ void View::show(const Screen& screen)
     bool _ = texture.loadFromImage(frameBuffer);
     sf::Sprite sprite(texture);
     windowPtr_->draw(sprite);
+
+    sf::Font font("arial.ttf");
+    sf::Text text(font);
+    text.setString(std::to_string(fps));
+    text.setFillColor(sf::Color::Red);
+    windowPtr_->draw(text);
+
+    windowPtr_->display();
 }

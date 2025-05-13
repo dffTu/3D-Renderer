@@ -15,6 +15,9 @@ public:
     void updateDirection(const Vec2& aDelta);
     void move(const Vec3& aOffset);
 
+    int getVelocity() const;
+    void setVelocity(int newVelocity);
+
     const int32_t height;
     const int32_t width;
     static constexpr const float zPlane = 0.1;
@@ -26,6 +29,8 @@ private:
     Vec3 right_;
     Vec3 up_;
 
-    double yaw;
-    double pitch;
+    double yaw_;
+    double pitch_;
+
+    int velocity_;
 };

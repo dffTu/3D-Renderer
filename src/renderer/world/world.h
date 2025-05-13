@@ -7,8 +7,8 @@ public:
     void addObject(Object& aObject);
     void addObject(Object&& aObject);
 
-    std::vector<std::reference_wrapper<Object>> getObjects() const;
+    const std::vector<Object>& getObjects() const;
 
 private:
-    std::vector<std::reference_wrapper<Object>> objects_;
+    std::vector<Object> objects_;
 };

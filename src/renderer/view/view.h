@@ -7,7 +7,7 @@ class View
 {
 public:
     View(sf::RenderWindow* windowPtr);
-    void show(const Screen& screen);
+    void show(const Screen& screen, const int fps);
 
 private:
     sf::RenderWindow* windowPtr_;

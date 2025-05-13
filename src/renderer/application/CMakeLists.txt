@@ -3,4 +3,4 @@ set(LIBRARY_SOURCES application.cpp)
 
 add_library(${LIBRARY_NAME} ${LIBRARY_SOURCES})
 
-target_link_libraries(${LIBRARY_NAME} sfml-graphics utils)
+target_link_libraries(${LIBRARY_NAME} renderer world camera view screen)

@@ -1,5 +1,5 @@
 add_executable(simple_example main.cpp)
-target_link_libraries(simple_example 3DRenderer camera screen view renderer world)
+target_link_libraries(simple_example 3DRenderer application)
 add_custom_command(
         TARGET simple_example POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy
