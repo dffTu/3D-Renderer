@@ -1,5 +1,4 @@
 #include "linalg.h"
-#include <iostream>
 
 Mat4 getDefaultMat4()
 {

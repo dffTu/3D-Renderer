@@ -4,9 +4,8 @@
 
 class Camera {
 public:
-    Camera();
+    Camera(int32_t height, int32_t width);
 
-    double getZPlane() const;
     Vec3 getPosition() const;
     Vec3 getDirection() const;
     Vec3 getUp() const;
@@ -16,11 +15,11 @@ public:
     void updateDirection(const Vec2& aDelta);
     void move(const Vec3& aOffset);
 
-    const unsigned int height;
-    const unsigned int width;
+    const int32_t height;
+    const int32_t width;
+    static constexpr const float zPlane = 0.1;
 
 private:
-    double zPlane_;
     const double sensitivity_;
     Vec3 position_;
     Vec3 direction_;

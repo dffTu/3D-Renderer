@@ -1,14 +1,15 @@
-#include <renderer/projector/projector.h>
+#include <renderer/renderer/renderer.h>
+#include <renderer/view/view.h>
 #include <thread>
 #include <iostream>
 #include <deque>
 
 int main()
 {
-    Projector projector;
+    Renderer projector;
 
-    World& world = projector.getWorld();
-    Camera& camera = projector.getCamera();
+    World world;
+    Camera camera(800, 800);
 
     const int cubes_count = 50;
 
@@ -34,26 +35,23 @@ int main()
         world.addObject(objects[i]);
     }
 
-    sf::RenderWindow window(sf::VideoMode({camera.width, camera.height}), "3D Renderer");
+    sf::RenderWindow window(sf::VideoMode({static_cast<unsigned int>(camera.width), static_cast<unsigned int>(camera.height)}), "3D Renderer");
 
     sf::Vector2i lastMousePos = sf::Mouse::getPosition(window);
     sf::Vector2i center(window.getSize().x / 2, window.getSize().y / 2);
 
     sf::Mouse::setPosition(center, window);
 
-    double deltaXSum = 0, deltaYSum = 0;
-
     sf::Clock clock;
 
-    float lastTime = 0;
-    int fps;
-
-    bool showFps = true;
 
     float cameraVelocity = 600;
     float spinningVelocity = 300;
 
+    bool showFps = true;
     std::deque<size_t> fpsDeque;
+
+    View view(&window);
 
     while (window.isOpen())
     {
@@ -68,7 +66,7 @@ int main()
             fpsDeque.pop_front();
         }
 
-        fps = fpsDeque.size();
+        int fps = fpsDeque.size();
 
         if (fps > 2000) fps = 2000;
 
@@ -112,10 +110,9 @@ int main()
         sf::Mouse::setPosition(center, window);
 
         camera.updateDirection(Vec2{delta.x, delta.y});
-        deltaXSum += delta.x;
-        deltaYSum += delta.y;
 
-        projector.projectObjects(window);
+        Screen screen = projector.projectObjects(world, camera);
+        view.show(screen);
         
         for (size_t i = 0; i < objects.size(); ++i)
         {
@@ -127,7 +124,7 @@ int main()
 
         sf::Font font("arial.ttf");
         sf::Text text(font);
-        text.setString(std::to_string(int(fps)));
+        text.setString(std::to_string(fps));
         text.setFillColor(sf::Color::Red);
         window.draw(text);
 

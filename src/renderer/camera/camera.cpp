@@ -1,21 +1,15 @@
 #include "camera.h"
-#include <renderer/utils/constants.h>
 
-Camera::Camera() :
+Camera::Camera(int32_t height, int32_t width) :
     sensitivity_(0.1),
-    height(constants::CAMERA_HEIGHT),
-    width(constants::CAMERA_WIDTH)
+    height(height),
+    width(width),
+    position_(Vec3(0, 0, 0)),
+    direction_(Vec3(0, 0, 1)),
+    up_(Vec3(0, 1, 0)),
+    yaw(90.0),
+    pitch(0.0)
 {
-    zPlane_ = constants::Z_PLANE;
-    position_ = Vec3(0, 0, 0);
-    direction_ = Vec3(0, 0, 1);
-    up_ = Vec3(0, 1, 0);
-    yaw = 90.0;
-    pitch = 0.0;
-}
-
-double Camera::getZPlane() const {
-    return zPlane_;
 }
 
 Vec3 Camera::getPosition() const {
