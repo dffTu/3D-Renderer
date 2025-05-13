@@ -2,7 +2,7 @@
 #include <renderer/utils/linalg.h>
 
 Object::Object() {
-    objectType_ = ObjectType::VERTEXES;
+    objectType_ = ObjectType::LINES;
     vertexes_ = {};
     vertexIndices_ = {};
     rotateMatrix_ = getDefaultMat4();

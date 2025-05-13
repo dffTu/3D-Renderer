@@ -18,20 +18,22 @@ void Projector::projectObject(const Object& aObject)
     std::vector<Vec2> screenVertexes = projectVertexes(transformedVertexes);
     std::vector<int> vertexIndices = aObject.getVertexIndices();
 
-    if (aObject.getObjectType() == ObjectType::LINES)
+    switch (aObject.getObjectType())
     {
-        projectLines(aObject, transformedVertexes);
-    }
-    else if (aObject.getObjectType() == ObjectType::LINE_STRIP)
-    {
-        projectLines(aObject, transformedVertexes);
-    }
-    else if (aObject.getObjectType() == ObjectType::POLYGONS) {
-        projectPolygons(aObject, transformedVertexes);
-    }
-    else if (aObject.getObjectType() == ObjectType::POLYGONS_WITH_OUTLINE) {
-        projectPolygons(aObject, transformedVertexes);
-        projectPolygonsOutline(aObject, transformedVertexes);
+        case ObjectType::LINES:
+        case ObjectType::LINE_STRIP:
+            projectLines(aObject, transformedVertexes);
+            return;
+        case ObjectType::POLYGONS:
+            projectPolygons(aObject, transformedVertexes);
+            return;
+        case ObjectType::POLYGONS_WITH_OUTLINE:
+            projectPolygons(aObject, transformedVertexes);
+            projectPolygonsOutline(aObject, transformedVertexes);
+            return;
+        default:
+            assert(false && "Unknown ObjectType!");
+            return;
     }
 }
 
