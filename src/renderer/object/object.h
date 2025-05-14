@@ -7,11 +7,11 @@
 namespace renderer
 {
 
-enum ObjectType {
-    LINES,
-    LINE_STRIP,
-    POLYGONS,
-    POLYGONS_WITH_OUTLINE
+enum class ObjectType {
+    Lines,
+    LineStrip,
+    Polygons,
+    PolygonsWithOutline
 };
 
 class Object {

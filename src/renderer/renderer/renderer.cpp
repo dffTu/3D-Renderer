@@ -28,14 +28,14 @@ void Renderer::projectObject(const Object& object, const Camera& camera, Screen&
 
     switch (object.getObjectType())
     {
-        case ObjectType::LINES:
-        case ObjectType::LINE_STRIP:
+        case ObjectType::Lines:
+        case ObjectType::LineStrip:
             projectLines(object, camera.zPlane, screen, transformedVertexes);
             return;
-        case ObjectType::POLYGONS:
+        case ObjectType::Polygons:
             projectPolygons(object, camera.zPlane, screen, transformedVertexes);
             return;
-        case ObjectType::POLYGONS_WITH_OUTLINE:
+        case ObjectType::PolygonsWithOutline:
             projectPolygons(object, camera.zPlane, screen, transformedVertexes);
             projectPolygonsOutline(object, camera.zPlane, screen, transformedVertexes);
             return;
@@ -55,8 +55,8 @@ void Renderer::projectLines(
 
     size_t delta;
 
-    if (object.getObjectType() == ObjectType::LINES) delta = 2;
-    else if (object.getObjectType() == ObjectType::LINE_STRIP) delta = 1;
+    if (object.getObjectType() == ObjectType::Lines) delta = 2;
+    else if (object.getObjectType() == ObjectType::LineStrip) delta = 1;
     else assert(false && "Unknown ObjectType for projecting lines!");
 
     for (size_t i = 1; i < vertexIndices.size(); i += delta)
@@ -256,7 +256,7 @@ void Renderer::projectPolygonsOutline(
         newIndices.push_back(vertexIndices[i]);
     }
 
-    Object newObject(ObjectType::LINES, object.getVertexes(), newIndices);
+    Object newObject(ObjectType::Lines, object.getVertexes(), newIndices);
 
     projectLines(newObject, zPlane, screen, aTransformedVertexes);
 }

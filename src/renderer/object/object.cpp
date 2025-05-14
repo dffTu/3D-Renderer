@@ -6,7 +6,7 @@ namespace renderer
 
 Object::Object()
 {
-    objectType_ = ObjectType::LINES;
+    objectType_ = ObjectType::Lines;
     vertexes_ = {};
     vertexIndices_ = {};
     rotateMatrix_ = getDefaultMat4();
