@@ -80,8 +80,8 @@ void Renderer::projectLines(
 }
 
 void Renderer::projectLine(
-    const Vec3& a,
-    const Vec3& b,
+    Vec3 a,
+    Vec3 b,
     Screen& screen,
     const Screen::TColor& color,
     const std::vector<Vec3>& aTransformedVertexes)
@@ -89,7 +89,48 @@ void Renderer::projectLine(
     Vec2 p1 = projectVertex(a, screen);
     Vec2 p2 = projectVertex(b, screen);
 
-    if ((p1 - p2).norm() <= 0.0001) return;
+    if ((p1 - p2).norm() <= 0.0001
+        || p1[0] < 0 && p2[0] < 0
+        || p1[0] >= screen.width && p2[0] >= screen.width
+        || p1[1] < 0 && p2[1] < 0
+        || p1[1] >= screen.height && p2[1] >= screen.height)
+    {
+        return;
+    }
+
+    for (int i = 0; i < 2; ++i)
+    {
+        if (p1[0] < 0)
+        {
+            float t = -p1[0] / (p2[0] - p1[0]);
+            p1 += t * (p2 - p1);
+            a += t * (b - a);
+        }
+
+        if (p1[0] >= screen.width)
+        {
+            float t = (screen.width - p1[0]) / (p2[0] - p1[0]);
+            p1 += t * (p2 - p1);
+            a += t * (b - a);
+        }
+
+        if (p1[1] < 0)
+        {
+            float t = -p1[1] / (p2[1] - p1[1]);
+            p1 += t * (p2 - p1);
+            a += t * (b - a);
+        }
+
+        if (p1[1] >= screen.height)
+        {
+            float t = (screen.height - p1[1]) / (p2[1] - p1[1]);
+            p1 += t * (p2 - p1);
+            a += t * (b - a);
+        }
+
+        std::swap(a, b);
+        std::swap(p1, p2);
+    }
 
     int x1 = static_cast<int>(std::round(p1[0]));
     int y1 = static_cast<int>(std::round(p1[1]));
@@ -106,11 +147,10 @@ void Renderer::projectLine(
     int err = dx - dy;
 
     float z = a[2];
-    float zStep = (p2[2] - p1[2]) / std::max(dx, dy);
+    float zStep = (b[2] - a[2]) / std::max(dx, dy);
 
     while (true) {
-
-        if (0 <= x1 && x1 < screen.width && 0 <= y1 && y1 < screen.height && (z < zBuffer_[y1 * screen.width + x1] || std::abs(z - zBuffer_[y1 * screen.width + x1]) <= 1))
+        if (0 <= x1 && x1 < screen.width && 0 <= y1 && y1 < screen.height && z < zBuffer_[y1 * screen.width + x1] + 0.2)
         {
             zBuffer_[y1 * screen.width + x1] = z;
             screen.setPixel(x1, y1, color);
@@ -127,6 +167,7 @@ void Renderer::projectLine(
             err += dx;
             y1 += sy;
         }
+        z += zStep;
     }
 }
 

@@ -24,7 +24,7 @@ void World::addSampleObjects()
         for (size_t j = 0; j < cubes_count; ++j)
         {
             Object obj(
-                ObjectType::Polygons,
+                ObjectType::PolygonsWithOutline,
                 {Vec3{50, 50, 50}, Vec3{50, -50, 50}, Vec3{-50, -50, 50}, Vec3{-50, 50, 50},
                 Vec3{50, 50, -50}, Vec3{50, -50, -50}, Vec3{-50, -50, -50}, Vec3{-50, 50, -50}},
                 {0, 1, 2, 0, 2, 3, 0, 1, 5, 0, 5, 4, 2, 3, 6, 3, 7, 6, 4, 5, 6, 4, 6, 7, 0, 3, 4, 3, 4, 7, 1, 2, 5, 2, 5, 6});

@@ -26,8 +26,8 @@ private:
         const std::vector<Vec3>& aTransformedVertexes);
     
     void projectLine(
-        const Vec3& p1,
-        const Vec3& p2,
+        Vec3 p1,
+        Vec3 p2,
         Screen& screen,
         const Screen::TColor& color,
         const std::vector<Vec3>& aTransformedVertexes);

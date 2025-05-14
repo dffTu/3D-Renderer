@@ -12,7 +12,7 @@ Camera::Camera(int32_t height, int32_t width) :
     up_(Vec3(0, 1, 0)),
     yaw_(90.0),
     pitch_(0.0),
-    velocity_(600)
+    velocity_(300)
 {
 }
 
