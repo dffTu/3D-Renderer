@@ -16,19 +16,19 @@ Camera::Camera(int32_t height, int32_t width) :
 {
 }
 
-Vec3 Camera::getPosition() const {
+const Vec3& Camera::getPosition() const {
     return position_;
 }
 
-Vec3 Camera::getDirection() const {
+const Vec3& Camera::getDirection() const {
     return direction_;
 }
 
-Vec3 Camera::getUp() const {
+const Vec3& Camera::getUp() const {
     return up_;
 }
 
-Vec3 Camera::getRight() const {
+const Vec3& Camera::getRight() const {
     return right_;
 }
 

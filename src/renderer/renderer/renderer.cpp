@@ -51,7 +51,7 @@ void Renderer::projectLines(
     Screen& screen,
     const std::vector<Vec3>& aTransformedVertexes)
 {
-    std::vector<int> vertexIndices = object.getVertexIndices();
+    const std::vector<int>& vertexIndices = object.getVertexIndices();
 
     size_t delta;
 
@@ -136,7 +136,7 @@ void Renderer::projectPolygons(
     Screen& screen,
     const std::vector<Vec3>& aTransformedVertexes)
 {
-    std::vector<int> vertexIndices = object.getVertexIndices();
+    const std::vector<int>& vertexIndices = object.getVertexIndices();
 
     for (int i = 2; i < vertexIndices.size(); i += 3)
     {
@@ -244,7 +244,7 @@ void Renderer::projectPolygonsOutline(
     const std::vector<Vec3>& aTransformedVertexes)
 {
     std::vector<int> newIndices;
-    std::vector<int> vertexIndices = object.getVertexIndices();
+    const std::vector<int>& vertexIndices = object.getVertexIndices();
 
     for (int i = 2; i < vertexIndices.size(); i += 3)
     {

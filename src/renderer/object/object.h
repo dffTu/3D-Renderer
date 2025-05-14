@@ -32,8 +32,8 @@ public:
     Object& addVertex(const Vec3& aVertex, int vertexIndice);
 
     ObjectType getObjectType() const;
-    std::vector<Vec3> getVertexes() const;
-    std::vector<int> getVertexIndices() const;
+    const std::vector<Vec3>& getVertexes() const;
+    const std::vector<int>& getVertexIndices() const;
     sf::Color getColor() const;
     Mat4 getTransformMatrix() const;
 
