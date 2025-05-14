@@ -1,7 +1,6 @@
 add_subdirectory(application)
 add_subdirectory(camera)
 add_subdirectory(object)
-add_subdirectory(rasterizer)
 add_subdirectory(renderer)
 add_subdirectory(screen)
 add_subdirectory(utils)

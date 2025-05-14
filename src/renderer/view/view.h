@@ -3,6 +3,9 @@
 #include <SFML/Graphics.hpp>
 #include <renderer/screen/screen.h>
 
+namespace renderer
+{
+
 class View
 {
 public:
@@ -12,3 +15,5 @@ public:
 private:
     sf::RenderWindow* windowPtr_;
 };
+
+}

@@ -1,6 +1,9 @@
 #include "object.h"
 #include <renderer/utils/linalg.h>
 
+namespace renderer
+{
+
 Object::Object() {
     objectType_ = ObjectType::LINES;
     vertexes_ = {};
@@ -117,4 +120,6 @@ void Object::rotateY(double aRadians) {
 
 void Object::rotateZ(double aRadians) {
     rotateMatrix_ = getZRotationMatrix(aRadians) * rotateMatrix_;
+}
+
 }

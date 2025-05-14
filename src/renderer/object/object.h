@@ -4,6 +4,9 @@
 #include <vector>
 #include <SFML/Graphics.hpp>
 
+namespace renderer
+{
+
 enum ObjectType {
     LINES,
     LINE_STRIP,
@@ -47,3 +50,5 @@ private:
     Mat4 rotateMatrix_;
     sf::Color color_;
 };
+
+}

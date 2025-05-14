@@ -1,5 +1,8 @@
 #include "camera.h"
 
+namespace renderer
+{
+
 Camera::Camera(int32_t height, int32_t width) :
     sensitivity_(0.1),
     height(height),
@@ -70,4 +73,6 @@ int Camera::getVelocity() const
 void Camera::setVelocity(int newVelocity)
 {
     velocity_ = newVelocity;
+}
+
 }

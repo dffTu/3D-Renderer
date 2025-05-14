@@ -6,6 +6,9 @@
 #include <tuple>
 #include <vector>
 
+namespace renderer
+{
+
 class Renderer {
 public:
     Screen projectObjects(const World& world, const Camera& camera);
@@ -76,3 +79,5 @@ private:
 
     std::vector<float> zBuffer_;
 };
+
+}

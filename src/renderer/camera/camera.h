@@ -2,6 +2,9 @@
 
 #include <renderer/utils/linalg.h>
 
+namespace renderer
+{
+
 class Camera {
 public:
     Camera(int32_t height, int32_t width);
@@ -34,3 +37,5 @@ private:
 
     int velocity_;
 };
+
+}

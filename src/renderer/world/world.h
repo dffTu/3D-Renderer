@@ -2,6 +2,9 @@
 
 #include <renderer/object/object.h>
 
+namespace renderer
+{
+
 class World {
 public:
     void addObject(const Object& aObject);
@@ -15,3 +18,5 @@ public:
 private:
     std::vector<Object> objects_;
 };
+
+}

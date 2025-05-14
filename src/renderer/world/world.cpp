@@ -1,5 +1,8 @@
 #include "world.h"
 
+namespace renderer
+{
+
 void World::addObject(const Object& aObject)
 {
     objects_.push_back(aObject);
@@ -45,4 +48,6 @@ void World::animateObjects(float timePassed)
 const std::vector<Object>& World::getObjects() const
 {
     return objects_;
+}
+
 }

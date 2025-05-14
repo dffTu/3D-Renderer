@@ -6,6 +6,9 @@
 #include <Eigen/Geometry>
 #include <math.h>
 
+namespace renderer
+{
+
 using Vec2 = Eigen::Vector2f;
 using Vec3 = Eigen::Vector3f;
 using Vec4 = Eigen::Vector4f;
@@ -27,3 +30,5 @@ float interpolateDepth(
     const std::tuple<float, float, float>& depths);
 
 Vec2 lerp(const Vec2& a, const Vec2& b, float t);
+
+}

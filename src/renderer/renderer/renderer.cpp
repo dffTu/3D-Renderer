@@ -1,5 +1,8 @@
 #include "renderer.h"
 
+namespace renderer
+{
+
 Screen Renderer::projectObjects(const World& world, const Camera& camera)
 {
     Screen screen(camera.height, camera.width);
@@ -381,4 +384,6 @@ std::vector<std::tuple<Vec3, Vec3, Vec3>> Renderer::clipPolygon(
     }
 
     return result;
+}
+
 }

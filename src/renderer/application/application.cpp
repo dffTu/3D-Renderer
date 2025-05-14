@@ -2,6 +2,9 @@
 #include <deque>
 #include <iostream>
 
+namespace renderer
+{
+
 Application::Application() :
     window_(sf::VideoMode({static_cast<unsigned int>(cameraWidth_), static_cast<unsigned int>(cameraHeight_)}), "3D Renderer"),
     renderer_(),
@@ -9,12 +12,11 @@ Application::Application() :
     camera_(cameraHeight_, cameraWidth_),
     view_(&window_)
 {
+    world_.addSampleObjects();
 }
 
 void Application::run()
 {
-    world_.addSampleObjects();
-
     sf::Clock clock;
     sf::Vector2i center(window_.getSize().x / 2, window_.getSize().y / 2);
     sf::Mouse::setPosition(center, window_);
@@ -88,4 +90,6 @@ int Application::getFps()
     }
 
     return fpsDeque_.size();
+}
+
 }

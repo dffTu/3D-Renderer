@@ -2,6 +2,9 @@
 
 #include <SFML/Graphics.hpp>
 
+namespace renderer
+{
+
 class Screen
 {
 public:
@@ -17,3 +20,5 @@ public:
 private:
     std::vector<TColor> colors_;
 };
+
+}

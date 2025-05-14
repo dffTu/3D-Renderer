@@ -1,5 +1,8 @@
 #include "view.h"
 
+namespace renderer
+{
+
 View::View(sf::RenderWindow* windowPtr) :
     windowPtr_(windowPtr)
 {
@@ -36,4 +39,6 @@ void View::show(const Screen& screen, const int fps)
     windowPtr_->draw(text);
 
     windowPtr_->display();
+}
+
 }

@@ -1,5 +1,8 @@
 #include "linalg.h"
 
+namespace renderer
+{
+
 Mat4 getDefaultMat4()
 {
     Mat4 result;
@@ -107,4 +110,6 @@ float interpolateDepth(
 Vec2 lerp(const Vec2& a, const Vec2& b, float t)
 {
     return a + (b - a) * t;
+}
+
 }

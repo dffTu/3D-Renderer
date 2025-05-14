@@ -1,3 +1,5 @@
+#pragma once
+
 #include <renderer/world/world.h>
 #include <renderer/camera/camera.h>
 #include <renderer/renderer/renderer.h>
@@ -5,6 +7,9 @@
 #include <renderer/view/view.h>
 #include <SFML/Window.hpp>
 #include <deque>
+
+namespace renderer
+{
 
 class Application
 {
@@ -27,3 +32,5 @@ private:
     static const constexpr int cameraWidth_ = 800;
     static const constexpr int cameraHeight_ = 800;
 };
+
+}
