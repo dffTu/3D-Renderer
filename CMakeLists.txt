@@ -7,15 +7,12 @@ set(LIBRARY_NAME 3DRenderer)
 project(${LIBRARY_NAME})
 
 set(LIBRARY_SOURCES
-    ${PROJECT_SOURCE_DIR}/src/renderer/camera/camera.h
-    ${PROJECT_SOURCE_DIR}/src/renderer/object/object.h
-    ${PROJECT_SOURCE_DIR}/src/renderer/rasterizer/rasterizer.h
-    ${PROJECT_SOURCE_DIR}/src/renderer/world/world.h
+    ${PROJECT_SOURCE_DIR}/src/renderer/renderer/renderer.cpp
 )
 
-add_library(${LIBRARY_NAME} ${LIBRARY_SOURCES})
+add_library(${LIBRARY_NAME} STATIC ${LIBRARY_SOURCES})
 include_directories(${LIBRARY_NAME} ${PROJECT_SOURCE_DIR}/src)
-target_link_libraries(${LIBRARY_NAME} camera object rasterizer world)
+target_link_libraries(${LIBRARY_NAME} renderer)
 set_target_properties(${LIBRARY_NAME} PROPERTIES LINKER_LANGUAGE CXX)
 
 add_subdirectory(contrib)

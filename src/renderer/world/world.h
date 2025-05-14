@@ -4,7 +4,7 @@
 
 class World {
 public:
-    void addObject(Object& aObject);
+    void addObject(const Object& aObject);
     void addObject(Object&& aObject);
 
     const std::vector<Object>& getObjects() const;
