@@ -4,6 +4,7 @@
 #include <renderer/screen/screen.h>
 #include <renderer/view/view.h>
 #include <SFML/Window.hpp>
+#include <deque>
 
 class Application
 {
@@ -13,12 +14,15 @@ public:
 
 private:
     void handleEvents(float timePassed);
+    int getFps();
 
     sf::RenderWindow window_;
     Renderer renderer_;
     World world_;
     Camera camera_;
     View view_;
+
+    std::deque<size_t> fpsDeque_;
 
     static const constexpr int cameraWidth_ = 800;
     static const constexpr int cameraHeight_ = 800;

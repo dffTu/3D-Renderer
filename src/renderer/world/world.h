@@ -7,6 +7,9 @@ public:
     void addObject(const Object& aObject);
     void addObject(Object&& aObject);
 
+    void addSampleObjects();
+    void animateObjects(float timePassed);
+
     const std::vector<Object>& getObjects() const;
 
 private:
