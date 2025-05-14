@@ -1,4 +1,5 @@
 #include "renderer.h"
+#include <thread>
 
 namespace renderer
 {
@@ -14,9 +15,25 @@ Screen Renderer::projectObjects(const World& world, const Camera& camera)
 
     std::fill(zBuffer_.begin(), zBuffer_.end(), std::numeric_limits<float>::max());
     
-    auto worldObjects = world.getObjects();
-    for (const auto& object : worldObjects) {
-        projectObject(object, camera, screen);
+    const std::vector<Object>& worldObjects = world.getObjects();
+
+    auto lambda = [&](const int id)
+    {
+        for (size_t i = id; i < worldObjects.size(); i += threadsCount_)
+        {
+            projectObject(worldObjects[i], camera, screen);
+        }
+    };
+
+    std::vector<std::thread> threads;
+
+    for (size_t i = 0; i < threadsCount_; ++i)
+    {
+        threads.emplace_back(lambda, i);
+    }
+
+    for (auto& t : threads) {
+        t.join();
     }
 
     return screen;

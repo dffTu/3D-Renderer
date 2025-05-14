@@ -15,7 +15,7 @@ void World::addObject(Object&& aObject)
 
 void World::addSampleObjects()
 {
-    const int cubes_count = 50;
+    const int cubes_count = 100;
 
     std::vector<Object> objects;
 

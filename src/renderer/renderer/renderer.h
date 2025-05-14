@@ -78,6 +78,7 @@ private:
         const float zPlane) const;
 
     std::vector<float> zBuffer_;
+    static const constexpr int threadsCount_ = 8;
 };
 
 }
