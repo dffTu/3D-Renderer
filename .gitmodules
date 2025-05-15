@@ -1,3 +1,6 @@
 [submodule "contrib/SFML"]
 	path = contrib/SFML
 	url = https://github.com/SFML/SFML.git
+[submodule "contrib/eigen"]
+	path = contrib/eigen
+	url = https://gitlab.com/libeigen/eigen.git
